@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import models.Tasks;
 import utils.DBUtil;
+
 /**
  * Servlet implementation class IndexServlet
  */
@@ -31,15 +32,22 @@ public class IndexServlet extends HttpServlet {
     /**
      * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
      */
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
         EntityManager em = DBUtil.createEntityManager();
 
         List<Tasks> tasks = em.createNamedQuery("getAllTasks", Tasks.class)
-                                   .getResultList();
+                .getResultList();
 
         em.close();
 
         request.setAttribute("tasks", tasks);
+        // フラッシュメッセージがセッションスコープにセットされていたら
+        // リクエストスコープに保存する（セッションスコープからは削除）
+        if (request.getSession().getAttribute("flush") != null) {
+            request.setAttribute("flush", request.getSession().getAttribute("flush"));
+            request.getSession().removeAttribute("flush");
+        }
 
         RequestDispatcher rd = request.getRequestDispatcher("/WEB-INF/views/tasks/index.jsp");
         rd.forward(request, response);
