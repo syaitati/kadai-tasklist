@@ -15,6 +15,7 @@ import javax.servlet.http.HttpServletResponse;
 import models.Tasks;
 import models.validators.TasksValidator;
 import utils.DBUtil;
+
 /**
  * Servlet implementation class UpdateServlet
  */
@@ -44,12 +45,11 @@ public class UpdateServlet extends HttpServlet {
             Tasks m = em.find(Tasks.class, (Integer) (request.getSession().getAttribute("tasks_id")));
 
             // フォームの内容を各フィールドに上書き
+            String content = request.getParameter("content");
+            m.setContent(content);
 
             Timestamp currentTime = new Timestamp(System.currentTimeMillis());
             m.setUpdated_at(currentTime); // 更新日時のみ上書き
-
-            String content = request.getParameter("content");
-            m.setContent(content);
 
             // バリデーションを実行してエラーがあったら編集画面のフォームに戻る
             List<String> errors = TasksValidator.validate(m);
@@ -71,23 +71,12 @@ public class UpdateServlet extends HttpServlet {
                 em.close();
 
                 // セッションスコープ上の不要になったデータを削除
-                request.getSession().removeAttribute("message_id");
+                request.getSession().removeAttribute("tasks_id");
 
                 // indexページへリダイレクト
                 response.sendRedirect(request.getContextPath() + "/index");
+
             }
-
-            // データベースを更新
-            em.getTransaction().begin();
-            em.getTransaction().commit();
-            request.getSession().setAttribute("flush", "更新が完了しました。"); // ここを追記
-            em.close();
-
-            // セッションスコープ上の不要になったデータを削除
-            request.getSession().removeAttribute("tasks_id");
-
-            // indexページへリダイレクト
-            response.sendRedirect(request.getContextPath() + "/index");
         }
     }
 }

@@ -10,6 +10,7 @@ public class TasksValidator {
     public static List<String> validate(Tasks m) {
         List<String> errors = new ArrayList<String>();
 
+
         String content_error = _validateContent(m.getContent());
         if(!content_error.equals("")) {
             errors.add(content_error);
@@ -18,8 +19,7 @@ public class TasksValidator {
         return errors;
     }
 
-
-    // タスクの必須入力チェック
+    // メッセージの必須入力チェック
     private static String _validateContent(String content) {
         if(content == null || content.equals("")) {
             return "タスクを入力してください。";
